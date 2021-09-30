@@ -7,8 +7,6 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Preparativos
-
 ## Carga de datos
 
 ```{r carga-librerias}
@@ -70,5 +68,19 @@ rios <-
   mutate(fecha = as.Date(fecha, format = "%m/%d/%Y"),
          promedio = (pandora + banano) / 2)
 slice_head(rios, n = 10)
+```
+```{r select}
+# Selección, renombramiento y conversión de columnas
+covid_columnas_seleccionadas <-
+  covid %>%
+  select(FECHA, muj_posi, hom_posi) %>%
+  rename(
+    fecha = FECHA,
+    positivos_mujeres = muj_posi,
+    positivos_hombres = hom_posi
+  ) %>%
+  mutate(fecha = as.Date(fecha, format = "%d/%m/%Y"))
+
+  slice_head(covid_columnas_seleccionadas, n = 10)
 ```
 
