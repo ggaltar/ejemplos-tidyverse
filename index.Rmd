@@ -7,22 +7,68 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+# Preparativos
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+## Carga de datos
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+```{r carga-librerias}
+# dplyr
+library(dplyr)
 
-```{r cars}
-summary(cars)
+# ggplot2
+library(ggplot2)
+```
+## Carga de datos desde un archivo CSV
+
+```{r carga-datos}
+# Ríos
+rios <-
+  read.csv(file = 'https://raw.githubusercontent.com/tpb728O-programaciongeoespacialr/2021ii/main/datos/hidrologia/fdc/fdc.csv')
+
+# Covid
+covid <- 
+  read.csv(
+    file='https://raw.githubusercontent.com/tpb728O-programaciongeoespacialr/2021ii/main/datos/minsalud/covid/ultimafecha_CSV_GENERAL.csv', 
+    sep = ","
+  )
 ```
 
-## Including Plots
+## dplyr
 
-You can also embed plots, for example:
+### mutate()
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r estructura}
+# Estructura del data frame
+str(rios)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r despliegue}
+# Despliegue de las primeras observaciones
+slice_head(rios, n = 10)
+
+# Despliegue de las últimas observaciones
+slice_tail(rios, n = 10)
+
+# Despliegue de una muestra aleatoria de observaciones
+slice_sample(rios, n = 10)
+```
+```{r funciones-enlazadas}
+# Funciones enlazadas
+rios %>% slice_head(n=10) %>% slice_sample(n=2)
+```
+```{r funciones-anidadas}
+# Funciones anidadas
+slice_tail(slice_head(rios, n = 10), n = 2)
+```
+```{r ejemplos-mutate}
+# Cambio de nombre de las columnas mediante rename()
+rios <-
+  rios %>%
+  rename(fecha = Tiempo,
+         pandora = Pandora.mm..637km2.,
+         banano = Banano.mm..90km2.) %>%
+  mutate(fecha = as.Date(fecha, format = "%m/%d/%Y"),
+         promedio = (pandora + banano) / 2)
+slice_head(rios, n = 10)
+```
+
