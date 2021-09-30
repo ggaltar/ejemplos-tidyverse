@@ -9,7 +9,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Carga de datos
 
-```{r carga-librerias}
+```{r carga-librerias, message=FALSE}
 # dplyr
 library(dplyr)
 
@@ -69,7 +69,30 @@ rios <-
          promedio = (pandora + banano) / 2)
 slice_head(rios, n = 10)
 ```
-```{r select}
+
+```{r rios-histogramas}
+# Histograma simple
+rios %>%
+    ggplot(aes(x = pandora)) +
+    geom_histogram()
+
+# Histograma con opciones
+rios %>%
+    ggplot(aes(x = pandora)) +
+    geom_histogram(binwidth = 1,
+                   color = "black",
+                   fill = "white")
+```
+
+```{r rios-lineas}
+# Gráfico de líneas simple
+rios %>%
+  ggplot(aes(x = fecha, y = pandora)) +
+  geom_line()
+```
+
+
+```{r seleccion}
 # Selección, renombramiento y conversión de columnas
 covid_columnas_seleccionadas <-
   covid %>%
@@ -83,4 +106,63 @@ covid_columnas_seleccionadas <-
 
   slice_head(covid_columnas_seleccionadas, n = 10)
 ```
+```{r filtro}
+### filter()
+covid_filtrado <-
+  covid %>%
+  select(FECHA, nue_posi) %>%
+  rename(fecha = FECHA, positivos_nuevos = nue_posi) %>%
+  mutate(fecha = as.Date(fecha, format = "%d/%m/%Y")) %>%
+  filter(positivos_nuevos >= 3000)
+  slice_head(covid_filtrado, n = 20)
+```
+```{r arrange}
+### arrange()
+covid_filtrado_ordenado_x_positivos_nuevos <-
+  covid %>%
+  select(FECHA, nue_posi) %>%
+  rename(fecha = FECHA, positivos_nuevos = nue_posi) %>%
+  mutate(fecha = as.Date(fecha, format = "%d/%m/%Y")) %>%
+  filter(positivos_nuevos >= 2500) %>%
+  arrange(desc(positivos_nuevos))
 
+  slice_head(covid_filtrado_ordenado_x_positivos_nuevos, n = 30)
+```
+```{r summarize01}
+### Sumarización de casos nuevos por mes y año
+covid_positivos_nuevos_sumarizado_x_mes <-
+  covid %>%
+  select(FECHA, nue_posi) %>%
+  rename(fecha = FECHA, positivos_nuevos = nue_posi) %>%
+  mutate(fecha = as.Date(fecha, format = "%d/%m/%Y")) %>%
+  group_by(anio = format(fecha,"%Y"), mes = format(fecha,"%m")) %>%
+  summarise(suma_positivos = sum(positivos_nuevos))
+
+covid_positivos_nuevos_sumarizado_x_mes
+```
+
+```{r summarize02}
+### Sumarización de casos nuevos por mes
+covid_positivos_nuevos_sumarizado_x_mes <-
+  covid %>%
+  select(FECHA, nue_posi) %>%
+  rename(fecha = FECHA, positivos_nuevos = nue_posi) %>%
+  mutate(fecha = as.Date(fecha, format = "%d/%m/%Y")) %>%
+  group_by(mes = format(fecha,"%m")) %>%
+  summarise(suma_positivos = sum(positivos_nuevos))
+
+covid_positivos_nuevos_sumarizado_x_mes
+```
+
+```{r summarize03}
+### Promedio de casos nuevos por mes
+covid_positivos_nuevos_promedio_x_mes <-
+  covid %>%
+  select(FECHA, nue_posi) %>%
+  rename(fecha = FECHA, positivos_nuevos = nue_posi) %>%
+  mutate(fecha = as.Date(fecha, format = "%d/%m/%Y")) %>%
+  group_by(mes = format(fecha,"%m")) %>%
+  summarise(suma_positivos = mean(positivos_nuevos))
+
+covid_positivos_nuevos_promedio_x_mes
+```
